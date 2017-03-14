@@ -13,12 +13,17 @@ class GameScene: SKScene {
  
    var ball = SKShapeNode()
    var paddle = SKSpriteNode()
+   var brick = SKSpriteNode()
     
     override func didMove(to view: SKView) {
         createBackground()
+        makeBall()
+        makePaddle()
+        makeBrick()
+        makeLoseZone()
     }
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        makeBall()
+
     }
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         
@@ -61,6 +66,30 @@ class GameScene: SKScene {
         ball.physicsBody?.contactTestBitMask = (ball.physicsBody?.collisionBitMask)!
         
         addChild(ball) // add ball object to view
+    }
+    func makePaddle() {
+        paddle = SKSpriteNode(color: UIColor.white, size: CGSize(width: frame.width/4, height: frame.height/25))
+        paddle.position = CGPoint(x: frame.midX, y: frame.midY + 125)
+        paddle.name = "paddle"
+        paddle.physicsBody = SKPhysicsBody(rectangleOf: paddle.size)
+        paddle.physicsBody?.isDynamic = false
+        addChild(paddle)
+    }
+    func makeBrick() {
+        brick = SKSpriteNode(color: UIColor.blue, size: CGSize(width: frame.width/5, height: frame.height/25))
+        brick.name = "brick"
+        brick.physicsBody = SKPhysicsBody(rectangleOf: brick.size)
+        brick.physicsBody?.isDynamic = false
+        addChild(brick)
+        
+    }
+    func makeLoseZone() {
+        let loseZone = SKSpriteNode(color: UIColor.red, size: CGSize(width: frame.width, height: 50))
+        loseZone.position = CGPoint(x: frame.midX, y: frame.midY + 25)
+        loseZone.name = "loseZone"
+        loseZone.physicsBody = SKPhysicsBody(rectangleOf: loseZone.size)
+        loseZone.physicsBody?.isDynamic = false
+        addChild(loseZone)
     }
     
 }
