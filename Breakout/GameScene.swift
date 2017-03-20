@@ -1,27 +1,30 @@
 //
 //  GameScene.swift
-//  Breakout
+//  breakoutProject
 //
-//  Created by jmoran2 on 3/13/17.
-//  Copyright © 2017 Big J's Kobe size development team. All rights reserved.
+//  Created by Brent Behling on 3/16/17.
+//  Copyright © 2017 Brent Behling. All rights reserved.
 //
 
 import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
- 
-   var ball = SKShapeNode()
-   var paddle = SKSpriteNode()
-   var brick = SKSpriteNode()
+    
+    var ball = SKShapeNode()
+    var paddle = SKSpriteNode()
+    var brick = SKSpriteNode()
+    var brickArray = [SKSpriteNode]()
+    var brickCount = 0
+    var count = 0
     
     override func didMove(to view: SKView) {
         physicsWorld.contactDelegate = self
         self.physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
-        createBackground()
+        //createBackground()
         makeBall()
         makePaddle()
-        makeBrick()
+        placeBricks(numCols: 2)
         makeLoseZone()
         ball.physicsBody?.isDynamic = true
         ball.physicsBody?.applyImpulse(CGVector(dx: 5, dy: 3))
@@ -40,6 +43,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
+    func didBegin(_ contact: SKPhysicsContact)  {
+        if(contact.bodyA.node?.name == "brick" || contact.bodyB.node?.name == "brick") {
+            print("Win")
+            brick.removeFromParent()
+            ball.removeFromParent()
+        }
+        if(contact.bodyA.node?.name == "loseZone" || contact.bodyB.node?.name == "loseZone")    {
+            print("Lose")
+            ball.removeFromParent()
+        }
+    }
+    
     func createBackground() {
         let stars = SKTexture(imageNamed: "stars")
         for i in 0...1 {
@@ -55,13 +70,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     func makeBall() {
-        ball = SKShapeNode(circleOfRadius:20)
+        ball = SKShapeNode(circleOfRadius: 15)
         ball.position = CGPoint(x: frame.midX, y: frame.midY)
         ball.strokeColor = UIColor.black
         ball.fillColor = UIColor.yellow
         ball.name = "ball"
         // physics shape matches ball image
-        ball.physicsBody = SKPhysicsBody(circleOfRadius: 20)
+        ball.physicsBody = SKPhysicsBody(circleOfRadius: 15)
         // ignores all forces and impulses
         ball.physicsBody?.isDynamic = false
         //use precise collisison detection
@@ -80,23 +95,56 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     func makePaddle() {
         paddle = SKSpriteNode(color: UIColor.white, size: CGSize(width: frame.width/4, height: frame.height/25))
-        paddle.position = CGPoint(x: frame.midX, y: frame.midY + 125)
+        paddle.position = CGPoint(x: frame.midX, y: frame.minY + 125)
         paddle.name = "paddle"
         paddle.physicsBody = SKPhysicsBody(rectangleOf: paddle.size)
         paddle.physicsBody?.isDynamic = false
         addChild(paddle)
     }
-    func makeBrick() {
+    func placeBricks(numCols: Int)  {
+        count = 0
+        while(count < numCols)    {
+            if(count == 0)  {
+                makeBrick(xPos: 0)
+            }
+            makeBrick(xPos: Int(frame.width)/5 + 5)
+            makeBrick(xPos: -(Int(frame.width)/5 + 5))
+            count += 1
+        }
+    }
+    
+    func makeBrick(xPos: Int) {
         brick = SKSpriteNode(color: UIColor.blue, size: CGSize(width: frame.width/5, height: frame.height/25))
+        brick.position = CGPoint(x: frame.midX + CGFloat(xPos), y: frame.maxY - 30)
         brick.name = "brick"
         brick.physicsBody = SKPhysicsBody(rectangleOf: brick.size)
         brick.physicsBody?.isDynamic = false
         addChild(brick)
+        brickArray.append(brick)
         
+        
+        /*var xPos = 10
+         var yPos = 20
+         
+         let brickWidth = (Int)((frame.width - 60) / 5)
+         let brickHeight = 20
+         
+         for rows in 1...3   {
+         for columns in 1...5    {
+         let brick = brick(frame: CGRect(x: xPos, y: yPos, width: brickWidth, height: brickHeight))
+         brick.backgroundColor = UIColor.blue
+         view?.addSubview(brick)
+         
+         brickArray.append(brick)
+         brickCount += 1
+         
+         xPos += (brickWidth + 10)
+         }
+         }*/
     }
     func makeLoseZone() {
         let loseZone = SKSpriteNode(color: UIColor.red, size: CGSize(width: frame.width, height: 50))
-        loseZone.position = CGPoint(x: frame.midX, y: frame.midY + 25)
+        loseZone.position = CGPoint(x: frame.midX, y: frame.minY + 25)
         loseZone.name = "loseZone"
         loseZone.physicsBody = SKPhysicsBody(rectangleOf: loseZone.size)
         loseZone.physicsBody?.isDynamic = false
